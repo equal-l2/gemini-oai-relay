@@ -1,0 +1,29 @@
+{
+	"name": "gemini-oai-relay",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"dependencies": {
+		"@google/genai": "^1.7.0",
+		"@hono/node-server": "^1.14.4",
+		"gaxios": "^7.1.1",
+		"google-auth-library": "^10.1.0",
+		"hono": "^4.8.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.0.6",
+		"@types/node": "24.0.7",
+		"openai": "5.8.2",
+		"tsx": "^4.20.3",
+		"typescript": "^5.8.3"
+	}
+}
