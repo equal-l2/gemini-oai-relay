@@ -1,13 +1,21 @@
 # Gemini-OAI Relay
 
-OpenAI-compatible API server for the internal API used by the Gemini CLI.
+OpenAI-compatible API server for the *unofficial* and *internal* API used by the Gemini CLI.
 Created for use with SillyTavern.
 
 > [!IMPORTANT]
 > This project is a community-driven effort and is not officially affiliated with Google, Gemini, or OpenAI.  
 > Almost all of the core code is adapted from the [Gemini CLI](https://github.com/google-gemini/gemini-cli).  
 > 
-> **This project may be discontinued at the request of the rights holder.**
+> **This project may be discontinued/withdrawn at the request of the rights holder.**
+
+> [!WARNING]
+> This software uses *unofficial* and *internal* APIs. Be aware that this may violate the provider's Terms of Service.  
+> The developers and contributors are not responsible for any consequences of using this software.  
+> This includes, but is not limited to, **the permanent or temporary suspension/ban of your account**.
+> 
+> By using this software, you acknowledge and accept all potential risks.  
+> **Use it entirely at your own risk.**  
 
 ## Prerequisites
 
@@ -23,7 +31,7 @@ Created for use with SillyTavern.
 
 2.  Authentication
 
-    This relay uses credentials from the Gemini CLI (`~/.gemini/oauth_creds.json`).  
+    This server uses credentials from the Gemini CLI (`~/.gemini/oauth_creds.json`).  
     You need to authenticate with the Gemini CLI first to create the credentials file.  
     Once the credentials are created, no manual authentication should be required.
 
@@ -82,6 +90,7 @@ curl http://localhost:6666/v1/models
 ```
 
 ## TODO
+- Model parameters (temperature, etc.)
 - Think config (enable/disable, thinking budgets)
 
 ## Thanks
