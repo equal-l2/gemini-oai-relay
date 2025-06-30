@@ -11,7 +11,7 @@ import type {
 } from "./gemini_cli/convert.js";
 import { generateOaiChunk, generateOaiResponse } from "./transport_convert.js";
 
-// heavily based on https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/code_assist/server.ts
+// heavily based on https://github.com/google-gemini/gemini-cli/blob/0cfaeedf03f73f427c74184cb08b6779c11bd7d3/packages/core/src/code_assist/server.ts
 
 export async function handleNonStreamingRequest(
 	c: Context,
