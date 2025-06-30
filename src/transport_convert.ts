@@ -69,8 +69,7 @@ export function generateGeminiRequest(
 				.map((part: ChatCompletionContentPartText) => part.text)
 				.join("\n");
 		})
-		.join("\n")
-		.trim();
+		.join("\n");
 
 	const contents: Content[] = userMessageOrHistory.map(
 		(msg: string | ChatCompletionContentPart[]) => {
@@ -148,10 +147,15 @@ export function generateGeminiRequest(
 	return toGenerateContentRequest(req, projectId);
 }
 
-export function generateOaiResponse(
-	model: ModelName,
+function extractData(
 	geminiResponse: CaGenerateContentResponse,
-): ChatCompletion {
+): [string, "length" | "stop"] {
+	if (!geminiResponse.response) {
+		// Should not happen considering its type
+		// but actually happened once
+		throw new Error("Gemini response is empty");
+	}
+
 	if (!geminiResponse.response.candidates) {
 		// No candidates in the response
 		// TODO: send promptFeedback
@@ -168,18 +172,34 @@ export function generateOaiResponse(
 		throw new Error("Gemini response contains no content");
 	}
 
-	const oaiMessages = geminiData.content.parts
-		.map((part: Part): string | undefined => part.text)
-		.join()
-		.trim();
+	if (geminiData.content.parts.length !== 1) {
+		// Assume one parts per one streaming response for now
+		// (Don't consider about multipart e.g. text with generated image)
+		throw new Error("Multiple parts in single streaming response");
+	}
+
+	const oaiMessage = geminiData.content.parts[0].text;
+
+	if (typeof oaiMessage !== "string") {
+		throw new Error(`Wrong type for oaiMessage ${typeof oaiMessage}`);
+	}
 
 	const finishReason =
 		geminiData.finishReason === "MAX_TOKENS" ? "length" : "stop";
 	console.log(`Generation finished: ${finishReason}`);
 
+	return [oaiMessage, finishReason];
+}
+
+export function generateOaiResponse(
+	model: ModelName,
+	geminiResponse: CaGenerateContentResponse,
+): ChatCompletion {
+	const [oaiMessage, finishReason] = extractData(geminiResponse);
+
 	const oaiOutput: ChatCompletion.Choice = {
 		message: {
-			content: oaiMessages,
+			content: oaiMessage,
 			role: "assistant",
 			refusal: null,
 		},
@@ -204,40 +224,11 @@ export function generateOaiChunk(
 	model: ModelName,
 	geminiChunk: CaGenerateContentResponse,
 ): ChatCompletionChunk {
-	if (!geminiChunk.response) {
-		throw new Error("Gemini response is empty");
-	}
-
-	if (!geminiChunk.response.candidates) {
-		// No candidates in the response
-		// TODO: send promptFeedback
-		throw new Error("Gemini response contains no candidates");
-	}
-
-	if (geminiChunk.response.candidates.length !== 1) {
-		throw new Error("Expected exactly one candidate in Gemini response");
-	}
-
-	const geminiData = geminiChunk.response.candidates[0];
-
-	if (!geminiData.content?.parts || geminiData.content.parts.length === 0) {
-		throw new Error("Gemini response contains no content");
-	}
-
-	const oaiMessages = geminiData.content.parts
-		.map((part: Part): string | undefined => part.text)
-		.join()
-		.trim();
-
-	let finishReason: "length" | "stop" | null = null;
-	if (geminiData.finishReason) {
-		finishReason = geminiData.finishReason === "MAX_TOKENS" ? "length" : "stop";
-		console.log(`Generation finished: ${finishReason}`);
-	}
+	const [oaiMessage, finishReason] = extractData(geminiChunk);
 
 	const oaiOutput: ChatCompletionChunk.Choice = {
 		delta: {
-			content: oaiMessages,
+			content: oaiMessage,
 			role: "assistant",
 			refusal: null,
 		},
